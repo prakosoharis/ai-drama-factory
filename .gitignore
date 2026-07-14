@@ -1,0 +1,42 @@
+# Models and checkpoints
+*.ckpt
+*.safetensors
+*.pt
+*.pth
+*.onnx
+models/
+checkpoints/
+
+# Caches and environments
+.cache/
+cache/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+node_modules/
+
+# Generated production media and temporary work
+renders/
+tmp/
+temp/
+proxies/
+*.mp4
+*.mov
+*.mkv
+*.avi
+*.wav
+*.mp3
+*.aiff
+
+# Logs and local configuration
+*.log
+.DS_Store
+.env
+.env.*
+!.env.example
+credentials/
+secrets/
+*.pem
+*.key
