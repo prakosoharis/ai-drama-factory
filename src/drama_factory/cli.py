@@ -8,6 +8,7 @@ from typing import Optional, Sequence
 from .errors import DramaFactoryError
 from .bootstrap import create_project
 from .rendering import create_plan, run_plan
+from .reviewing import add_review, select, effective
 from .project import load_project
 from .validator import findings_as_dict, validate
 
@@ -45,6 +46,14 @@ def _parser() -> argparse.ArgumentParser:
     run=render_sub.add_parser("run"); run.add_argument("plan_id"); run.add_argument("--project",required=True); run.add_argument("--fail", choices=("before-output","partial-output"))
     candidates=sub.add_parser("candidates"); candidates.add_argument("shot_id"); candidates.add_argument("--project",required=True); candidates.add_argument("--format",choices=("text","json"),default="text")
     candidate=sub.add_parser("candidate"); cs=candidate.add_subparsers(dest="candidate_command",required=True); showc=cs.add_parser("show"); showc.add_argument("candidate_id"); showc.add_argument("--project",required=True)
+    approve=cs.add_parser('approve'); approve.add_argument('candidate_id'); approve.add_argument('--project',required=True); approve.add_argument('--reviewer',required=True); approve.add_argument('--summary',required=True); approve.add_argument('--waive-findings',action='store_true'); approve.add_argument('--waive-finding',action='append',default=[]); approve.add_argument('--waiver-reason')
+    reject=cs.add_parser('reject'); reject.add_argument('candidate_id'); reject.add_argument('--project',required=True); reject.add_argument('--reviewer',required=True); reject.add_argument('--summary',required=True)
+    compare=cs.add_parser('compare'); compare.add_argument('candidate_a'); compare.add_argument('candidate_b'); compare.add_argument('--project',required=True); compare.add_argument('--format',choices=('text','json'),default='text')
+    review=sub.add_parser('review'); rs=review.add_subparsers(dest='review_command',required=True); ra=rs.add_parser('add'); ra.add_argument('candidate_id'); ra.add_argument('--project',required=True); ra.add_argument('--decision',required=True,choices=('APPROVE_PICTURE','REQUEST_REVISION','REJECT','COMMENT_ONLY')); ra.add_argument('--summary',required=True); ra.add_argument('--reviewer',required=True); ra.add_argument('--reviewer-type',default='human')
+    rl=rs.add_parser('list'); rl.add_argument('candidate_id'); rl.add_argument('--project',required=True); rl.add_argument('--format',default='text',choices=('text','json'))
+    finding=rs.add_parser('finding'); fs=finding.add_subparsers(dest='finding_command',required=True); fa=fs.add_parser('add'); fa.add_argument('candidate_id'); fa.add_argument('--project',required=True); fa.add_argument('--category',required=True); fa.add_argument('--severity',required=True); fa.add_argument('--start-timecode',required=True); fa.add_argument('--end-timecode',required=True); fa.add_argument('--evidence',required=True); fa.add_argument('--confidence',type=float,required=True); fa.add_argument('--suggested-action',required=True); fa.add_argument('--reviewer',default='human')
+    sel=sub.add_parser('select'); sel.add_argument('candidate_id'); sel.add_argument('--project',required=True); sel.add_argument('--purpose',required=True,choices=('ROUGH_CUT','FINAL_CUT','BENCHMARK','PREVIEW')); sel.add_argument('--selected-by',required=True); sel.add_argument('--notes',default='')
+    sels=sub.add_parser('selections'); sels.add_argument('shot_id'); sels.add_argument('--project',required=True); sels.add_argument('--format',default='text',choices=('text','json'))
     return parser
 
 
@@ -66,10 +75,34 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         if args.command == "candidates":
             rows=[x for x in project.entities.get("candidate",{}).values() if x.get("shot_id")==args.shot_id]
             print(json.dumps(rows,indent=2) if args.format=="json" else "\n".join("%s v%s %s %s"%(x["candidate_id"],x["version"],x["status"],x.get("artifact_path")) for x in rows)); return 0
+        if args.command=='review':
+            if args.review_command=='finding':
+                f={'finding_id':'finding-'+args.candidate_id[-3:]+'-001','category':args.category,'severity':args.severity,'start_timecode':args.start_timecode,'end_timecode':args.end_timecode,'frame':None,'evidence':args.evidence,'confidence':args.confidence,'suggested_action':args.suggested_action}; print('Review: '+add_review(args.project,args.candidate_id,'COMMENT_ONLY','Finding added',args.reviewer,'human',[f])); return 0
+            if args.review_command=='add': print('Review: '+add_review(args.project,args.candidate_id,args.decision,args.summary,args.reviewer,args.reviewer_type)); return 0
+            rows=[r for r in project.entities.get('review',{}).values() if r['candidate_id']==args.candidate_id]; print(json.dumps(rows,indent=2) if args.format=='json' else '\n'.join('%s %s %s'%(r['review_id'],r['decision'],r['summary']) for r in rows)); return 0
+        if args.command=='select': print('Selection: '+select(args.project,args.candidate_id,args.purpose,args.selected_by,args.notes)); return 0
+        if args.command=='selections':
+            rows=[s for s in project.entities.get('selection',{}).values() if s['shot_id']==args.shot_id]; superseded={s.get('supersedes_selection_id') for s in rows};
+            for s in rows: s['_derived_status']='SUPERSEDED' if s['selection_id'] in superseded else 'ACTIVE'
+            print(json.dumps(rows,indent=2) if args.format=='json' else '\n'.join('%s %s %s %s'%(s['selection_id'],s['purpose'],s['candidate_id'],s['_derived_status']) for s in rows)); return 0
         if args.command == "candidate":
+            if args.candidate_command=='approve': print('Review: '+add_review(args.project,args.candidate_id,'APPROVE_PICTURE',args.summary,args.reviewer,waive=args.waive_findings or bool(args.waive_finding),waiver_reason=args.waiver_reason,waive_ids=args.waive_finding)); return 0
+            if args.candidate_command=='reject': print('Review: '+add_review(args.project,args.candidate_id,'REJECT',args.summary,args.reviewer)); return 0
+            if args.candidate_command=='compare':
+                rows=[]
+                for cid in (args.candidate_a,args.candidate_b):
+                    item=project.entities.get('candidate',{}).get(cid)
+                    if not item: raise DramaFactoryError('Candidate not found: '+cid)
+                    plan=project.entities.get('render_plan',{}).get(item['render_plan_id'],{})
+                    reviews=[r for r in project.entities.get('review',{}).values() if r['candidate_id']==cid]
+                    rows.append({'candidate_id':cid,'renderer':plan.get('renderer'),'model':plan.get('model'),'seed':plan.get('selected_seed'),'render_plan_id':item['render_plan_id'],'duration':item['duration'],'resolution':item['resolution'],'checksum':item['checksum'],'effective_status':effective(project,cid),'review_decisions':[r['decision'] for r in reviews],'finding_count':sum(len(r.get('findings',[])) for r in reviews)})
+                print(json.dumps(rows,indent=2) if args.format=='json' else '\n'.join('%s %s %s %s'%(r['candidate_id'],r['effective_status'],r['checksum'],r['render_plan_id']) for r in rows)); return 0
             item=project.entities.get("candidate",{}).get(args.candidate_id)
             if not item: print("Candidate not found"); return 2
-            print(json.dumps(item,indent=2)); return 0
+            reviews=[r for r in project.entities.get('review',{}).values() if r['candidate_id']==args.candidate_id]
+            selections=[s for s in project.entities.get('selection',{}).values() if s['candidate_id']==args.candidate_id]
+            plan=project.entities.get('render_plan',{}).get(item['render_plan_id'],{})
+            print('Candidate: %s\nShot: %s\nRendered status: %s\nEffective review status: %s\nRender Plan: %s\nRender Job: %s\nRenderer: %s\nModel: %s\nArtifact: %s\nChecksum: %s\nReviews: %d\nLatest review: %s\nSelected for: %s' % (item['candidate_id'],item['shot_id'],item['status'],effective(project,args.candidate_id),item['render_plan_id'],item['render_job_id'],plan.get('renderer'),plan.get('model'),item.get('artifact_path'),item['checksum'],len(reviews),reviews[-1]['decision'] if reviews else 'none',', '.join(s['purpose'] for s in selections) or 'none')); return 0
         if args.command == "inspect":
             findings = validate(project)
             print("Project: %s (%s)" % (project.manifest.get("project_name"), project.manifest.get("project_id")))

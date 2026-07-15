@@ -156,7 +156,23 @@ def _validate_references(index: ProjectIndex) -> List[Finding]:
         path = index.files["review"][review_id]
         if not has("candidate", review.get("candidate_id")):
             out.append(_finding(path, "candidate_id", review.get("candidate_id"), "existing Candidate", "correct or restore candidate"))
+        if review.get("reviewer_type") not in {"human","ai_critic","automated_qc","system"}:
+            out.append(_finding(path,"reviewer_type",review.get("reviewer_type"),"human, ai_critic, automated_qc, or system","use a documented reviewer type"))
+        if review.get("decision") == "APPROVE_PICTURE" and review.get("reviewer_type") != "human":
+            out.append(_finding(path,"reviewer_type",review.get("reviewer_type"),"human for picture approval","record non-human output as COMMENT_ONLY or REQUEST_REVISION"))
+        seen=set()
         for finding in review.get("findings", []) if isinstance(review.get("findings"), list) else []:
+            if finding.get("finding_id") in seen: out.append(_finding(path,"findings.finding_id",finding.get("finding_id"),"unique finding ID within review","allocate a new finding ID"))
+            seen.add(finding.get("finding_id"))
+            confidence=finding.get("confidence")
+            if not isinstance(confidence,(int,float)) or not 0 <= confidence <= 1: out.append(_finding(path,"findings.confidence",confidence,"number from 0 to 1","supply confidence in the inclusive range"))
+            start=_timecode_seconds(finding.get("start_timecode")); end=_timecode_seconds(finding.get("end_timecode"))
+            if start is None: out.append(_finding(path,"findings.start_timecode",finding.get("start_timecode"),"HH:MM:SS.mmm non-negative timecode","use e.g. 00:00:01.200"))
+            if end is None: out.append(_finding(path,"findings.end_timecode",finding.get("end_timecode"),"HH:MM:SS.mmm non-negative timecode","use e.g. 00:00:02.800"))
+            if start is not None and end is not None and end < start: out.append(_finding(path,"findings.end_timecode",finding.get("end_timecode"),"timecode at or after start_timecode","increase end_timecode"))
+            frame=finding.get("frame")
+            if frame is not None and (not isinstance(frame,int) or frame < 0): out.append(_finding(path,"findings.frame",frame,"integer >= 0 or null","use a non-negative frame number"))
+            if finding.get("waived") and not all(finding.get(k) for k in ("waiver_reason","waived_by","waived_at")): out.append(_finding(path,"findings.waived","incomplete waiver metadata","reason, waived_by, and waived_at","supply complete human waiver metadata"))
             for field in ("finding_id", "category", "severity", "start_timecode", "end_timecode", "frame", "evidence", "confidence", "suggested_action", "waived", "waiver_reason"):
                 if field not in finding:
                     out.append(_finding(path, "findings.%s" % field, None, "required finding field", "add the field"))
@@ -178,6 +194,22 @@ def _validate_references(index: ProjectIndex) -> List[Finding]:
                 out.append(_finding(path, "timeline.shot_id", item.get("shot_id"), "candidate shot_id %s" % candidate.get("shot_id"), "match candidate shot"))
             elif candidate.get("status") == "REJECTED":
                 out.append(_finding(path, "timeline.candidate_id", item.get("candidate_id"), "non-rejected Candidate", "use approved candidate"))
+    groups = {}
+    for selection_id, selection in entities.get("selection", {}).items():
+        parent = selection.get("supersedes_selection_id")
+        path = index.files["selection"][selection_id]
+        if parent:
+            older = entities.get("selection", {}).get(parent)
+            if older is None:
+                out.append(_finding(path, "supersedes_selection_id", parent, "existing Selection", "correct the history link"))
+            elif parent == selection_id or older.get("shot_id") != selection.get("shot_id") or older.get("purpose") != selection.get("purpose"):
+                out.append(_finding(path, "supersedes_selection_id", parent, "different Selection with same shot and purpose", "correct the history link"))
+        groups.setdefault((selection.get("shot_id"), selection.get("purpose")), []).append((selection_id, selection))
+    for _, rows in groups.items():
+        parents = {item.get("supersedes_selection_id") for _, item in rows if item.get("supersedes_selection_id")}
+        active = [selection_id for selection_id, _ in rows if selection_id not in parents]
+        if len(active) > 1:
+            out.append(_finding(index.manifest_path, "selection_history", active, "one active Selection per shot/purpose", "link replacements with supersedes_selection_id"))
     versions = {}
     for candidate_id, candidate in entities.get("candidate", {}).items():
         key = (candidate.get("shot_id"), candidate.get("version"))
@@ -186,6 +218,15 @@ def _validate_references(index: ProjectIndex) -> List[Finding]:
         else:
             versions[key] = candidate_id
     return out
+
+
+def _timecode_seconds(value: Any):
+    if not isinstance(value,str): return None
+    match=re.fullmatch(r"(\d{2}):(\d{2}):(\d{2})\.(\d{3})",value)
+    if not match: return None
+    hours, minutes, seconds, millis=(int(part) for part in match.groups())
+    if minutes >= 60 or seconds >= 60: return None
+    return hours*3600+minutes*60+seconds+millis/1000
 
 
 def _validate_files(index: ProjectIndex) -> List[Finding]:

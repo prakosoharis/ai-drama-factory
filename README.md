@@ -33,5 +33,11 @@ no production media. See [V2.1-A core metadata](docs/implementation/V2.1-A-CORE-
 Create a native creative project with `drama project create <path> --project-id
 <id> --name <name> --template minimal-drama`.
 
+V2.1-D is complete for MVP: reviews, findings, human picture approval,
+rejection, comparison, ROUGH_CUT selection, immutable candidate packages, and
+file/checksum validation work. V2.2 Review and Selection Hardening is backlog
+for concurrent allocation, full waiver edge cases, complex selection chains,
+cycle detection, and expanded exhaustive tests. V2.1-E is next.
+
 Start with the [master vision](docs/vision/MASTER-VISION.md),
 [roadmap](docs/roadmap/ROADMAP.md), and [project context](PROJECT-CONTEXT.md).
