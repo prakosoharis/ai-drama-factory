@@ -1,7 +1,7 @@
 {
   "schema_version": "0.1",
-  "project_id": "nightmare-film",
-  "project_name": "V2.1 Synthetic Shot 11",
+  "project_id": "demo-drama",
+  "project_name": "V2.1 Synthetic Demo Drama",
   "engine_version": "0.1.0",
   "project_root": ".",
   "paths": {"project": "project"},

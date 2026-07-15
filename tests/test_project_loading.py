@@ -9,5 +9,5 @@ class ProjectLoadingTest(unittest.TestCase):
         root = Path(__file__).parents[1] / "examples/v2.1-minimal-project"
         manifest = discover_project(str(root / "project/shots"))
         index = load_project(str(manifest))
-        self.assertEqual("nightmare-film", index.manifest["project_id"])
+        self.assertEqual("demo-drama", index.manifest["project_id"])
         self.assertEqual(2, index.count("candidate"))

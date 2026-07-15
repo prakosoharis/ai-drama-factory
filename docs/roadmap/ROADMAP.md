@@ -17,6 +17,19 @@ version activates only when its production or technology trigger is met.
 | V9 | Scalable Rendering | Job queue, multi-worker, persistent cache, recovery, budget guardrails | Proven throughput bottleneck and safe orchestration | Scaling improves throughput with controlled cost and recovery |
 | V10 | Semi-Autonomous Creative Studio | Brief-to-plan, screenplay, storyboard, animatic, render planning, review queue, editorial, delivery assets | Mature validated capabilities from earlier versions | End-to-end plans remain reviewable, reproducible, and human-approved |
 
+## V2.1 delivery sequence
+
+1. **V2.1-A — Core Metadata and Validation** (complete)
+2. **V2.1-B — New Project Bootstrap**
+3. **V2.1-C — Single-Shot Candidate Workflow**
+4. **V2.1-D — Review and Candidate Selection**
+5. **V2.1-E — Cut Manifest and Reproducible Assembly**
+6. **V2.1-F — New Native V2 Pilot Production**
+7. **V2.1-G — Optional V1 Baseline Import**
+
+The native V2 pilot uses a new clean creative project. `project-film` remains
+an archived baseline and optional migration test, not a required test fixture.
+
 ## Activation triggers
 
 **Production trigger:** a real production bottleneck has occurred and the

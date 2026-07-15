@@ -71,7 +71,7 @@ def _validate_manifest(index: ProjectIndex) -> List[Finding]:
     if data.get("schema_version") != SCHEMA_VERSION:
         out.append(_finding(path, "schema_version", data.get("schema_version"), '"0.1"', "use supported schema version"))
     if "project_id" in data and not is_valid_id("project", data["project_id"]):
-        out.append(_finding(path, "project_id", data["project_id"], "lowercase human-readable ID", "use e.g. nightmare-film"))
+        out.append(_finding(path, "project_id", data["project_id"], "lowercase human-readable ID", "use e.g. demo-drama"))
     for field in ("created_at", "updated_at"):
         if field in data:
             out.extend(_timestamp(path, field, data[field]))

@@ -27,15 +27,25 @@ not an attempt to build the best generative model.
 
 ## Current status
 
-Current milestone: **V2.1 — Flexible Shot Revision**.
+Current milestone: **V2.1-A — Core Metadata and Validation** is complete.
 
-Target: Shot 11 can be rendered again as a new candidate, compared, selected,
-and inserted into the film without rendering any other shot again.
+The first native V2 workflow will use a new, clean creative project. V1 is an
+archived reference and optional future import test, not a V2 runtime dependency.
+
+## V2.1 delivery sequence
+
+1. **V2.1-A — Core Metadata and Validation** (complete)
+2. **V2.1-B — New Project Bootstrap**
+3. **V2.1-C — Single-Shot Candidate Workflow**
+4. **V2.1-D — Review and Candidate Selection**
+5. **V2.1-E — Cut Manifest and Reproducible Assembly**
+6. **V2.1-F — New Native V2 Pilot Production**
+7. **V2.1-G — Optional V1 Baseline Import**
 
 V2.1-A now provides file-based project discovery, metadata loading, structural
 and file-level validation, and read-only inspection for synthetic projects.
-Rendering, review mutation, selection mutation, assembly, and V1 migration
-remain deferred.
+Rendering, review mutation, selection mutation, assembly, new-project
+bootstrap, native pilot production, and optional V1 import remain deferred.
 
 ## Current non-goals
 

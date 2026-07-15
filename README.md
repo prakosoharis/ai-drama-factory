@@ -23,7 +23,7 @@ python3 -m venv .venv
 python -m pip install --editable .
 drama inspect --project examples/v2.1-minimal-project
 drama validate --project examples/v2.1-minimal-project --level structure
-drama shot show shot-011 --project examples/v2.1-minimal-project
+drama shot show shot-001 --project examples/v2.1-minimal-project
 ```
 
 `--level files` also verifies referenced media existence and supplied SHA-256
