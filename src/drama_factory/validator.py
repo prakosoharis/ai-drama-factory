@@ -119,7 +119,7 @@ def _timestamp(path: Path, field: str, value: Any) -> List[Finding]:
 
 def _path_fields(kind: str, data: Dict[str, Any]) -> Iterable[str]:
     fields = {"render_plan": ["prompt_artifact", "negative_prompt_artifact"], "render_job": ["log_path"],
-              "candidate": ["video_path", "proxy_path", "thumbnail_path", "metadata_path"],
+              "candidate": ["video_path", "artifact_path", "proxy_path", "thumbnail_path", "metadata_path"],
               "shot_package": ["video_source", "proxy", "dialogue_stem", "foley_stem", "local_sfx_stem"]}
     return [field for field in fields.get(kind, []) if data.get(field) is not None]
 
@@ -192,7 +192,7 @@ def _validate_files(index: ProjectIndex) -> List[Finding]:
     out: List[Finding] = []
     for candidate_id, candidate in index.entities.get("candidate", {}).items():
         path = index.files["candidate"][candidate_id]
-        media = index.root / candidate.get("video_path", "")
+        media = index.root / (candidate.get("artifact_path") or candidate.get("video_path") or "")
         if not media.is_file() or media.stat().st_size == 0:
             out.append(_finding(path, "video_path", candidate.get("video_path"), "existing non-empty media file", "supply valid media before FILES validation"))
             continue

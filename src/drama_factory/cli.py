@@ -7,6 +7,7 @@ from typing import Optional, Sequence
 
 from .errors import DramaFactoryError
 from .bootstrap import create_project
+from .rendering import create_plan, run_plan
 from .project import load_project
 from .validator import findings_as_dict, validate
 
@@ -36,6 +37,14 @@ def _parser() -> argparse.ArgumentParser:
     create.add_argument("--description", default="First native V2 production project for AI Drama Factory.")
     create.add_argument("--force-empty-directory", action="store_true")
     create.add_argument("--format", choices=("text", "json"), default="text")
+    render=sub.add_parser("render"); render_sub=render.add_subparsers(dest="render_command",required=True)
+    plan=render_sub.add_parser("plan"); plan_sub=plan.add_subparsers(dest="plan_command",required=True); pc=plan_sub.add_parser("create")
+    pc.add_argument("shot_id");
+    for arg,typ in (("--renderer",str),("--task",str),("--duration",int),("--resolution",str),("--fps",int)): pc.add_argument(arg,required=True,type=typ)
+    pc.add_argument("--project",required=True)
+    run=render_sub.add_parser("run"); run.add_argument("plan_id"); run.add_argument("--project",required=True); run.add_argument("--fail", choices=("before-output","partial-output"))
+    candidates=sub.add_parser("candidates"); candidates.add_argument("shot_id"); candidates.add_argument("--project",required=True); candidates.add_argument("--format",choices=("text","json"),default="text")
+    candidate=sub.add_parser("candidate"); cs=candidate.add_subparsers(dest="candidate_command",required=True); showc=cs.add_parser("show"); showc.add_argument("candidate_id"); showc.add_argument("--project",required=True)
     return parser
 
 
@@ -49,7 +58,18 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             result = {"project_path": str(args.project_path), "project_id": args.project_id, "template": args.template, "files_created": [str(item) for item in created]}
             print(json.dumps(result, indent=2) if args.format == "json" else "Created:\n" + "\n".join(result["files_created"]))
             return 0
+        if args.command == "render":
+            if args.render_command=="plan":
+                pid,path=create_plan(args.project,args.shot_id,args.renderer,args.task,args.duration,args.resolution,args.fps); print("Render Plan: %s\nPath: %s"%(pid,path)); return 0
+            jid,cid=run_plan(args.project,args.plan_id,args.fail); print("Render Job: %s\nCandidate: %s"%(jid,cid)); return 0
         project = load_project(getattr(args, "project", None))
+        if args.command == "candidates":
+            rows=[x for x in project.entities.get("candidate",{}).values() if x.get("shot_id")==args.shot_id]
+            print(json.dumps(rows,indent=2) if args.format=="json" else "\n".join("%s v%s %s %s"%(x["candidate_id"],x["version"],x["status"],x.get("artifact_path")) for x in rows)); return 0
+        if args.command == "candidate":
+            item=project.entities.get("candidate",{}).get(args.candidate_id)
+            if not item: print("Candidate not found"); return 2
+            print(json.dumps(item,indent=2)); return 0
         if args.command == "inspect":
             findings = validate(project)
             print("Project: %s (%s)" % (project.manifest.get("project_name"), project.manifest.get("project_id")))

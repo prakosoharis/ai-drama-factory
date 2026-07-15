@@ -76,6 +76,8 @@ def load_project(path: Optional[str]) -> ProjectIndex:
                 continue
             kind = entity.get("entity_type")
             entity_id = _entity_id(entity)
+            if file_path.name in {"provenance.json", "qc-summary.json"}:
+                continue
             if not isinstance(kind, str) or not entity_id:
                 index.load_errors.append("%s: entity_type: expected known entity metadata" % file_path)
                 continue

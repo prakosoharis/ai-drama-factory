@@ -27,7 +27,7 @@ not an attempt to build the best generative model.
 
 ## Current status
 
-Current milestone: **V2.1-B — New Project Bootstrap** is implemented and pending approval.
+Current milestone: **V2.1-C — Single-Shot Candidate Workflow** is implemented and pending approval.
 
 The first native V2 workflow will use a new, clean creative project. V1 is an
 archived reference and optional future import test, not a V2 runtime dependency.
