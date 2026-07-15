@@ -33,6 +33,11 @@ V2.2 — Review and Selection Hardening is backlog for concurrent allocation,
 full waiver edge cases, complex supersession chains/cycle detection, and
 expanded exhaustive tests.
 
+V2.1-E is COMPLETE — MVP. V2.1-F — Native V2 Pilot Production is next.
+V2.2 editorial backlog: picture-lock lifecycle, concurrent Cut allocation,
+complex timeline editing, transition handling, recovery hardening, and
+real-media conform edge cases.
+
 The first native V2 workflow will use a new, clean creative project. V1 is an
 archived reference and optional future import test, not a V2 runtime dependency.
 

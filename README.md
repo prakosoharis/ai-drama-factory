@@ -39,5 +39,9 @@ file/checksum validation work. V2.2 Review and Selection Hardening is backlog
 for concurrent allocation, full waiver edge cases, complex selection chains,
 cycle detection, and expanded exhaustive tests. V2.1-E is next.
 
+V2.1-E is COMPLETE — MVP: Cut Manifests explicitly place selected Candidates
+on a timeline and deterministic mock assembly follows that manifest. V2.1-F is
+next: Native V2 Pilot Production.
+
 Start with the [master vision](docs/vision/MASTER-VISION.md),
 [roadmap](docs/roadmap/ROADMAP.md), and [project context](PROJECT-CONTEXT.md).

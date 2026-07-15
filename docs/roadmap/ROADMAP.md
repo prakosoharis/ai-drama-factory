@@ -23,8 +23,8 @@ version activates only when its production or technology trigger is met.
 2. **V2.1-B — New Project Bootstrap** (complete)
 3. **V2.1-C — Single-Shot Candidate Workflow** (complete)
 4. **V2.1-D — Review and Candidate Selection** (COMPLETE — MVP)
-5. **V2.1-E — Cut Manifest and Reproducible Assembly** (next)
-6. **V2.1-F — New Native V2 Pilot Production**
+5. **V2.1-E — Cut Manifest and Reproducible Assembly** (COMPLETE — MVP)
+6. **V2.1-F — New Native V2 Pilot Production** (next)
 7. **V2.1-G — Optional V1 Baseline Import**
 
 ## V2.2 backlog: Review and Selection Hardening
@@ -33,6 +33,8 @@ version activates only when its production or technology trigger is met.
 - Full waiver edge-case coverage.
 - Complex Selection supersession validation and cycle detection.
 - Expanded exhaustive test coverage.
+- Picture-lock lifecycle, concurrent Cut allocation, complex timeline editing,
+  transition handling, recovery hardening, and real-media conform edge cases.
 
 The native V2 pilot uses a new clean creative project. `project-film` remains
 an archived baseline and optional migration test, not a required test fixture.

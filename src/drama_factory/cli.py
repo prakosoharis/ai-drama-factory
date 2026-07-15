@@ -9,6 +9,7 @@ from .errors import DramaFactoryError
 from .bootstrap import create_project
 from .rendering import create_plan, run_plan
 from .reviewing import add_review, select, effective
+from .cuts import create as create_cut, add_shot, assemble as assemble_cut, clone as clone_cut
 from .project import load_project
 from .validator import findings_as_dict, validate
 
@@ -54,6 +55,11 @@ def _parser() -> argparse.ArgumentParser:
     finding=rs.add_parser('finding'); fs=finding.add_subparsers(dest='finding_command',required=True); fa=fs.add_parser('add'); fa.add_argument('candidate_id'); fa.add_argument('--project',required=True); fa.add_argument('--category',required=True); fa.add_argument('--severity',required=True); fa.add_argument('--start-timecode',required=True); fa.add_argument('--end-timecode',required=True); fa.add_argument('--evidence',required=True); fa.add_argument('--confidence',type=float,required=True); fa.add_argument('--suggested-action',required=True); fa.add_argument('--reviewer',default='human')
     sel=sub.add_parser('select'); sel.add_argument('candidate_id'); sel.add_argument('--project',required=True); sel.add_argument('--purpose',required=True,choices=('ROUGH_CUT','FINAL_CUT','BENCHMARK','PREVIEW')); sel.add_argument('--selected-by',required=True); sel.add_argument('--notes',default='')
     sels=sub.add_parser('selections'); sels.add_argument('shot_id'); sels.add_argument('--project',required=True); sels.add_argument('--format',default='text',choices=('text','json'))
+    cut=sub.add_parser('cut'); cuts=cut.add_subparsers(dest='cut_command',required=True); cc=cuts.add_parser('create'); cc.add_argument('--project',required=True); cc.add_argument('--name',required=True); cc.add_argument('--purpose',default='ROUGH_CUT'); ca=cuts.add_parser('add-shot'); ca.add_argument('cut_id'); ca.add_argument('shot_id'); ca.add_argument('--project',required=True); ca.add_argument('--source-in',type=float,required=True); ca.add_argument('--source-out',type=float,required=True); ca.add_argument('--notes',default='')
+    cl=cuts.add_parser('clone'); cl.add_argument('cut_id'); cl.add_argument('--project',required=True); cl.add_argument('--name',required=True)
+    csw=cuts.add_parser('show'); csw.add_argument('cut_id'); csw.add_argument('--project',required=True)
+    csl=cuts.add_parser('list'); csl.add_argument('--project',required=True)
+    asm=sub.add_parser('assemble'); asm.add_argument('cut_id'); asm.add_argument('--project',required=True); asm.add_argument('--assembler',default='mock')
     return parser
 
 
@@ -85,6 +91,14 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             rows=[s for s in project.entities.get('selection',{}).values() if s['shot_id']==args.shot_id]; superseded={s.get('supersedes_selection_id') for s in rows};
             for s in rows: s['_derived_status']='SUPERSEDED' if s['selection_id'] in superseded else 'ACTIVE'
             print(json.dumps(rows,indent=2) if args.format=='json' else '\n'.join('%s %s %s %s'%(s['selection_id'],s['purpose'],s['candidate_id'],s['_derived_status']) for s in rows)); return 0
+        if args.command=='cut':
+            if args.cut_command=='create': print('Cut: '+create_cut(args.project,args.name,args.purpose)); return 0
+            if args.cut_command=='add-shot': add_shot(args.project,args.cut_id,args.shot_id,args.source_in,args.source_out,args.notes); print('Added shot'); return 0
+            if args.cut_command=='clone': print('Cut: '+clone_cut(args.project,args.cut_id,args.name)); return 0
+            p=load_project(args.project); cuts=p.entities.get('cut_manifest',{})
+            if args.cut_command=='show': print(json.dumps(cuts.get(args.cut_id),indent=2)); return 0
+            print('\n'.join('%s %s %s'%(x['cut_id'],x['status'],len(x['timeline'])) for x in cuts.values())); return 0
+        if args.command=='assemble': print('Assembly: '+str(assemble_cut(args.project,args.cut_id))); return 0
         if args.command == "candidate":
             if args.candidate_command=='approve': print('Review: '+add_review(args.project,args.candidate_id,'APPROVE_PICTURE',args.summary,args.reviewer,waive=args.waive_findings or bool(args.waive_finding),waiver_reason=args.waiver_reason,waive_ids=args.waive_finding)); return 0
             if args.candidate_command=='reject': print('Review: '+add_review(args.project,args.candidate_id,'REJECT',args.summary,args.reviewer)); return 0
