@@ -6,6 +6,7 @@ import traceback
 from typing import Optional, Sequence
 
 from .errors import DramaFactoryError
+from .bootstrap import create_project
 from .project import load_project
 from .validator import findings_as_dict, validate
 
@@ -25,6 +26,16 @@ def _parser() -> argparse.ArgumentParser:
     show = shot_sub.add_parser("show")
     show.add_argument("shot_id")
     show.add_argument("--project", help="project directory or drama-factory.project.json")
+    project = sub.add_parser("project")
+    project_sub = project.add_subparsers(dest="project_command", required=True)
+    create = project_sub.add_parser("create")
+    create.add_argument("project_path")
+    create.add_argument("--project-id", required=True)
+    create.add_argument("--name", required=True)
+    create.add_argument("--template", choices=("minimal-drama",), default="minimal-drama")
+    create.add_argument("--description", default="First native V2 production project for AI Drama Factory.")
+    create.add_argument("--force-empty-directory", action="store_true")
+    create.add_argument("--format", choices=("text", "json"), default="text")
     return parser
 
 
@@ -33,6 +44,11 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser = _parser()
     try:
         args = parser.parse_args(argv)
+        if args.command == "project":
+            created = create_project(args.project_path, args.project_id, args.name, args.description, args.force_empty_directory)
+            result = {"project_path": str(args.project_path), "project_id": args.project_id, "template": args.template, "files_created": [str(item) for item in created]}
+            print(json.dumps(result, indent=2) if args.format == "json" else "Created:\n" + "\n".join(result["files_created"]))
+            return 0
         project = load_project(getattr(args, "project", None))
         if args.command == "inspect":
             findings = validate(project)

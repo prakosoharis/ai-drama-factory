@@ -27,7 +27,7 @@ not an attempt to build the best generative model.
 
 ## Current status
 
-Current milestone: **V2.1-A — Core Metadata and Validation** is complete.
+Current milestone: **V2.1-B — New Project Bootstrap** is implemented and pending approval.
 
 The first native V2 workflow will use a new, clean creative project. V1 is an
 archived reference and optional future import test, not a V2 runtime dependency.
@@ -35,7 +35,7 @@ archived reference and optional future import test, not a V2 runtime dependency.
 ## V2.1 delivery sequence
 
 1. **V2.1-A — Core Metadata and Validation** (complete)
-2. **V2.1-B — New Project Bootstrap**
+2. **V2.1-B — New Project Bootstrap** (implemented; pending approval)
 3. **V2.1-C — Single-Shot Candidate Workflow**
 4. **V2.1-D — Review and Candidate Selection**
 5. **V2.1-E — Cut Manifest and Reproducible Assembly**

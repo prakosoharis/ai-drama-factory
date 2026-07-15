@@ -20,7 +20,7 @@ version activates only when its production or technology trigger is met.
 ## V2.1 delivery sequence
 
 1. **V2.1-A — Core Metadata and Validation** (complete)
-2. **V2.1-B — New Project Bootstrap**
+2. **V2.1-B — New Project Bootstrap** (implemented; pending approval)
 3. **V2.1-C — Single-Shot Candidate Workflow**
 4. **V2.1-D — Review and Candidate Selection**
 5. **V2.1-E — Cut Manifest and Reproducible Assembly**

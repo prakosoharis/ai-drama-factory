@@ -90,7 +90,7 @@ def load_project(path: Optional[str]) -> ProjectIndex:
 
 
 def _entity_id(entity: Dict[str, Any]) -> Optional[str]:
-    keys = {"shot_contract": "shot_id", "render_plan": "render_plan_id", "render_job": "render_job_id",
+    keys = {"scene_contract": "scene_id", "shot_contract": "shot_id", "render_plan": "render_plan_id", "render_job": "render_job_id",
             "candidate": "candidate_id", "review": "review_id", "selection": "selection_id",
             "cut_manifest": "cut_id", "shot_package": "shot_package_id"}
     key = keys.get(entity.get("entity_type"))

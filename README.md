@@ -30,5 +30,8 @@ drama shot show shot-001 --project examples/v2.1-minimal-project
 checksums. The synthetic example deliberately fails that level because it has
 no production media. See [V2.1-A core metadata](docs/implementation/V2.1-A-CORE-METADATA.md).
 
+Create a native creative project with `drama project create <path> --project-id
+<id> --name <name> --template minimal-drama`.
+
 Start with the [master vision](docs/vision/MASTER-VISION.md),
 [roadmap](docs/roadmap/ROADMAP.md), and [project context](PROJECT-CONTEXT.md).

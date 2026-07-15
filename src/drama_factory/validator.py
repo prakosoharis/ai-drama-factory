@@ -14,6 +14,7 @@ from .time import parse_utc
 SCHEMA_VERSION = "0.1"
 LEVELS = {"structure", "files"}
 ENTITY_SPECS = {
+    "scene_contract": ("scene", ["schema_version", "scene_id", "title", "objective", "mood", "pacing", "environment", "lighting_intention", "ambience_intention", "status", "revision", "created_at", "updated_at"]),
     "shot_contract": ("shot", ["schema_version", "shot_id", "scene_id", "title", "dramatic_intention", "duration_target", "characters", "environment", "start_state", "end_state", "primary_action", "camera", "lighting", "dialogue_dependency", "audio_dependency", "continuity_dependencies", "references", "known_risks", "acceptance_criteria", "status", "revision"]),
     "render_plan": ("render_plan", ["schema_version", "render_plan_id", "shot_id", "renderer", "model", "model_version", "task", "compiler_version", "prompt_artifact", "negative_prompt_artifact", "references", "audio_conditioning", "duration", "resolution", "fps", "seed_policy", "candidate_budget", "handles", "model_specific", "estimated_cost", "created_at"]),
     "render_job": ("render_job", ["schema_version", "render_job_id", "render_plan_id", "candidate_id", "status", "worker", "provider", "started_at", "completed_at", "exit_code", "runtime_seconds", "estimated_cost", "actual_cost", "log_path", "error", "retry_of"]),
@@ -28,7 +29,7 @@ ENUMS = {"render_job": {"status": {"QUEUED", "RUNNING", "SUCCEEDED", "FAILED", "
          "review": {"decision": {"APPROVE_PICTURE", "REQUEST_REVISION", "REJECT", "COMMENT_ONLY"}},
          "selection": {"purpose": {"ROUGH_CUT", "FINAL_CUT", "BENCHMARK", "PREVIEW"}},
          "cut_manifest": {"status": {"DRAFT", "ROUGH_CUT", "REVIEW", "PICTURE_LOCKED", "DELIVERY_APPROVED"}}}
-TIMESTAMPS = {"render_plan": ["created_at"], "render_job": ["started_at", "completed_at"], "candidate": ["created_at"], "review": ["created_at"], "selection": ["selected_at"], "cut_manifest": ["created_at"], "shot_package": ["published_at"]}
+TIMESTAMPS = {"scene_contract":["created_at","updated_at"], "render_plan": ["created_at"], "render_job": ["started_at", "completed_at"], "candidate": ["created_at"], "review": ["created_at"], "selection": ["selected_at"], "cut_manifest": ["created_at"], "shot_package": ["published_at"]}
 
 
 @dataclass
@@ -94,7 +95,7 @@ def _validate_entity(kind: str, data: Dict[str, Any], path: Path, root: Path) ->
             out.append(_finding(path, field, None, "required field", "add the field; use null if explicitly unavailable"))
     if data.get("schema_version") != SCHEMA_VERSION:
         out.append(_finding(path, "schema_version", data.get("schema_version"), '"0.1"', "use supported schema version"))
-    id_field = {"shot_contract": "shot_id", "cut_manifest": "cut_id"}.get(kind, "%s_id" % kind)
+    id_field = {"scene_contract":"scene_id", "shot_contract": "shot_id", "cut_manifest": "cut_id"}.get(kind, "%s_id" % kind)
     if id_field in data and not is_valid_id(id_kind, data[id_field]):
         out.append(_finding(path, id_field, data[id_field], "valid %s ID" % id_kind, "use documented stable ID format"))
     for field in TIMESTAMPS.get(kind, []):
