@@ -1,0 +1,12 @@
+{
+  "schema_version": "0.1",
+  "project_id": "nightmare-film",
+  "project_name": "V2.1 Synthetic Shot 11",
+  "engine_version": "0.1.0",
+  "project_root": ".",
+  "paths": {"project": "project"},
+  "default_renderer": "wan",
+  "default_audio_policy": "external",
+  "created_at": "2026-07-15T18:30:00Z",
+  "updated_at": "2026-07-15T18:30:00Z"
+}

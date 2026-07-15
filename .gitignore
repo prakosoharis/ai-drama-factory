@@ -11,6 +11,7 @@ checkpoints/
 .cache/
 cache/
 __pycache__/
+*.egg-info/
 *.py[cod]
 .venv/
 venv/

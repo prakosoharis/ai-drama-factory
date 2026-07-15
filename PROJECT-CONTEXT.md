@@ -32,6 +32,11 @@ Current milestone: **V2.1 — Flexible Shot Revision**.
 Target: Shot 11 can be rendered again as a new candidate, compared, selected,
 and inserted into the film without rendering any other shot again.
 
+V2.1-A now provides file-based project discovery, metadata loading, structural
+and file-level validation, and read-only inspection for synthetic projects.
+Rendering, review mutation, selection mutation, assembly, and V1 migration
+remain deferred.
+
 ## Current non-goals
 
 - Implementing a production pipeline, database, web UI, CLI, distributed
