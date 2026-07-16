@@ -1,0 +1,21 @@
+services:
+  drama-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    environment:
+      DRAMA_FACTORY_PROJECT_ROOT: ${DRAMA_FACTORY_PROJECT_ROOT:-/projects}
+      DRAMA_FACTORY_PROJECTS: ${DRAMA_FACTORY_PROJECTS:-[{"id":"ai-drama-pilot","name":"AI Drama Pilot","path":"/projects/ai-drama-pilot"}]}
+      DRAMA_FACTORY_CORS_ORIGINS: http://localhost:${PORTAL_PORT:-3000}
+    volumes:
+      - ${DRAMA_FACTORY_PILOT_PATH}:/projects/ai-drama-pilot
+    ports: ["${API_PORT:-8000}:8000"]
+  drama-portal:
+    build:
+      context: .
+      dockerfile: Dockerfile.portal
+    environment:
+      DRAMA_FACTORY_API_INTERNAL_URL: ${DRAMA_FACTORY_API_INTERNAL_URL:-http://drama-api:8000}
+      NEXT_PUBLIC_DRAMA_FACTORY_API_URL: ${NEXT_PUBLIC_DRAMA_FACTORY_API_URL:-http://localhost:8000}
+    depends_on: [drama-api]
+    ports: ["${PORTAL_PORT:-3000}:3000"]

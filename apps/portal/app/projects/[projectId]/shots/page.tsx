@@ -1,0 +1,2 @@
+import Link from 'next/link';import {api} from '../../../../lib/api';
+export default async function Shots({params}:{params:Promise<{projectId:string}>}){const {projectId}=await params;const shots=await api<any[]>(`/api/projects/${projectId}/shots`);return <><h2>Shots</h2>{shots.map(s=><div className="card" key={s.shot_id}><Link href={`/projects/${projectId}/shots/${s.shot_id}`}>{s.shot_id}: {s.title}</Link><p>{s.duration_target}s — {s.primary_action}</p></div>)}</>}

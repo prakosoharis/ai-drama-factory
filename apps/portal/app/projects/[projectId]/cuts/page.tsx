@@ -1,0 +1,2 @@
+import Link from 'next/link';import {api} from '../../../../lib/api';
+export default async function Cuts({params}:{params:Promise<{projectId:string}>}){const {projectId}=await params;const cuts=await api<any[]>(`/api/projects/${projectId}/cuts`);return <><h2>Cuts</h2>{cuts.map(c=><div className="card" key={c.cut_id}><Link href={`/projects/${projectId}/cuts/${c.cut_id}`}>{c.cut_id}: {c.cut_name}</Link></div>)}</>}

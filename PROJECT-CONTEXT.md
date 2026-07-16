@@ -72,3 +72,18 @@ bootstrap, native pilot production, and optional V1 import remain deferred.
 - **Cut Manifest:** the versioned timeline selection used for assembly.
 - **Published artifact:** an immutable approved production output.
 - **SeaDance benchmark:** a quality reference, not a technology blueprint.
+# Portal MVP
+
+The repository includes a local Portal MVP control plane. It exposes only
+server-configured project IDs, never filesystem paths supplied by a browser,
+and delegates write rules to the existing engine services. It has no database,
+authentication, worker queue, GPU runtime, or media streaming. Those concerns
+remain deferred until a production control-plane milestone.
+
+# Creative Journey MVP
+
+Creative Journey MVP is implemented pending approval. The portal starts with
+creative documents rather than render entities and records manual development
+work from Idea through Storyboard. An approved Shot Plan may be handed off to
+engine Shot Contracts only through an explicit, traceable confirmation. Internal
+AI assistance is deferred.

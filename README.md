@@ -43,5 +43,21 @@ V2.1-E is COMPLETE — MVP: Cut Manifests explicitly place selected Candidates
 on a timeline and deterministic mock assembly follows that manifest. V2.1-F is
 next: Native V2 Pilot Production.
 
+## Portal MVP
+
+The Portal MVP adds a local FastAPI control plane and a Next.js web interface
+for configured creative projects. It is intentionally a thin layer over the
+file-based engine: human review, selection, validation, and mock assembly
+continue to use the engine services. Run it with `docker compose --env-file
+.env up --build` after setting `DRAMA_FACTORY_PILOT_PATH`; the pilot remains a
+bind-mounted project and is never copied into an image. See
+[Portal MVP](docs/implementation/PORTAL-MVP.md).
+
+Creative Journey MVP is implemented pending approval. It gives non-technical
+users a manual, documented path from Idea through Delivery; notes from friends,
+research, and external AI tools can be pasted into the project without storing
+any external credentials. Internal AI assistance remains deferred. See
+[Creative Journey MVP](docs/implementation/CREATIVE-JOURNEY-MVP.md).
+
 Start with the [master vision](docs/vision/MASTER-VISION.md),
 [roadmap](docs/roadmap/ROADMAP.md), and [project context](PROJECT-CONTEXT.md).

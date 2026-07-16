@@ -46,3 +46,17 @@ proposed capability removes it safely.
 
 **Technology trigger:** the necessary capability has become sufficiently
 mature, reliable, and affordable to justify adoption.
+# Portal MVP — Implemented pending runtime approval
+
+The local Portal MVP provides a Docker Compose runtime, FastAPI control plane,
+and Next.js interface for configured projects. It is a product-surface slice,
+not a replacement for the file-based engine. Authentication, multi-user
+authorization, queues, media playback, real render orchestration, and hosted
+deployment remain backlog items.
+
+# Creative Journey MVP — Implemented pending approval
+
+The Journey adds human-friendly, file-backed development and pre-production
+stages, discussion notes, and explicit Shot Plan-to-Production handoff. It does
+not add an internal AI assistant, database, real-time collaboration, or media
+generation; internal AI assistance is deferred.
